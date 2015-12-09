@@ -12,8 +12,9 @@ var marklogic = require('marklogic');
 var path = require("path");
 var async = require('async');
 
-var cleanPath = function(filePath, localPath) {
-    return path.relative(localPath, filePath);
+// TODO - test this function with duplicate '//' and such
+var cleanPath = function(filePath, serverRoot, localPath) {
+    return serverRoot + path.relative(localPath, filePath);
 };
 
 module.exports = function(grunt) {
@@ -26,22 +27,27 @@ module.exports = function(grunt) {
       // Force task into async mode and grab a handle to the "done" function
       var done = this.async();
 
-    // create options to pass to marklogic db creation
-    var options = this.options({
-      user: this.data.user || 'admin',
-      password: this.data.password || 'admin',
-      port: this.data.port || '8000',
-      host: this.data.host || 'localhost',
-      base_path: this.data.base_path || "",
-      server_root: this.data.server_root || "/"
-    });
+      var defaultConfiguration = {
+          user: 'admin',
+          password: 'admin',
+          port: '8000',
+          host: 'localhost',
+          base_path: "",
+          server_root: "/"
+      };
+
+      var options = this.data.options;
+
+      var configuration = defaultConfiguration;
+
+      for (var attrname in options) { configuration[attrname] = options[attrname]; }
 
     // setup marklogic db connection
     var db = marklogic.createDatabaseClient({
-        user: options.user,
-        password: options.password,
-        host: options.host,
-        port: options.port
+        user: configuration.user,
+        password: configuration.password,
+        host: configuration.host,
+        port: configuration.port
     });
 
     var uploadTasks = [];
@@ -58,7 +64,7 @@ module.exports = function(grunt) {
             // ignore directories
             return false;
         } else {
-            var uri = options.server_root + cleanPath(filepath, options.base_path);
+            var uri = cleanPath(filepath, configuration.server_root, configuration.base_path);
             uploadTasks.push(function(callback){
                 db.documents.write([{uri: uri, content: grunt.file.read(filepath)}]).result(
                     function(response) {
