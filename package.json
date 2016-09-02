@@ -1,7 +1,7 @@
 {
   "name": "grunt-ml-sync",
   "description": "Grunt plugin to sync with MarkLogic database",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/spig/grunt-ml-sync",
   "author": {
     "name": "Steve Spigarelli",
@@ -41,6 +41,6 @@
   ],
   "dependencies": {
     "async": "^1.5.0",
-    "marklogic": "^1.0.4"
+    "marklogic": "^1.0.5"
   }
 }

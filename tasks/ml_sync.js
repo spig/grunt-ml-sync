@@ -28,6 +28,7 @@ module.exports = function(grunt) {
       var done = this.async();
 
       var defaultConfiguration = {
+          database: "Documents",
           user: 'admin',
           password: 'admin',
           port: '8000',
@@ -44,6 +45,7 @@ module.exports = function(grunt) {
 
     // setup marklogic db connection
     var db = marklogic.createDatabaseClient({
+        database: configuration.database,
         user: configuration.user,
         password: configuration.password,
         host: configuration.host,
@@ -66,9 +68,11 @@ module.exports = function(grunt) {
         } else {
             var uri = cleanPath(filepath, configuration.server_root, configuration.base_path);
             uploadTasks.push(function(callback){
+                grunt.log.writeln("loading " + filepath + " to " + uri);
+
                 db.documents.write([{uri: uri, content: grunt.file.read(filepath)}]).result(
                     function(response) {
-                        grunt.log.writeln('Loaded the following documents:');
+                        grunt.verbose.writeln('Loaded the following documents:');
                         response.documents.forEach(function(document) {
                             grunt.verbose.writeln(' ' + document.uri);
                         });
