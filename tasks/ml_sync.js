@@ -17,6 +17,10 @@ var cleanPath = function(filePath, serverRoot, localPath) {
     return serverRoot + path.relative(localPath, filePath);
 };
 
+var isArray = function(obj) {
+    return obj instanceof Array || (obj && Object.prototype.toString.call(obj) === '[object Array]');
+};
+
 module.exports = function(grunt) {
 
   // Please see the Grunt documentation for more information regarding task
@@ -66,22 +70,33 @@ module.exports = function(grunt) {
             // ignore directories
             return false;
         } else {
-            var uri = cleanPath(filepath, configuration.server_root, configuration.base_path);
-            uploadTasks.push(function(callback){
-                grunt.log.writeln("loading " + filepath + " to " + uri);
+            var server_roots = [];
+            if (isArray(configuration.server_root)) {
+                configuration.server_root.forEach(function(server_root) {
+                    server_roots.push(server_root);
+                });
+            } else {
+                server_roots.push(configuration.server_root);
+            }
 
-                db.documents.write([{uri: uri, content: grunt.file.read(filepath)}]).result(
-                    function(response) {
-                        grunt.verbose.writeln('Loaded the following documents:');
-                        response.documents.forEach(function(document) {
-                            grunt.verbose.writeln(' ' + document.uri);
-                        });
-                        callback(null, response);
-                    },
-                    function(error) {
-                        callback(error);
-                    }
-                );
+            server_roots.forEach(function(server_root) {
+                var uri = cleanPath(filepath, server_root, configuration.base_path);
+                uploadTasks.push(function(callback){
+                    grunt.log.writeln("loading " + filepath + " to " + uri);
+
+                    db.documents.write([{uri: uri, content: grunt.file.read(filepath)}]).result(
+                        function(response) {
+                            grunt.verbose.writeln('Loaded the following documents:');
+                            response.documents.forEach(function(document) {
+                                grunt.verbose.writeln(' ' + document.uri);
+                            });
+                            callback(null, response);
+                        },
+                        function(error) {
+                            callback(error);
+                        }
+                    );
+                });
             });
         }
       });
