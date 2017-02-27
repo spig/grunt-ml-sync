@@ -103,6 +103,8 @@ module.exports = function(grunt) {
       });
     });
 
+    grunt.verbose.writeln("Syncing " + configuration.limit + " files at a time");
+
     async.parallelLimit(uploadTasks, configuration.limit, function(err, results) {
         if (err) { return grunt.log.error(err); }
 
