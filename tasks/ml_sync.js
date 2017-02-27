@@ -38,7 +38,8 @@ module.exports = function(grunt) {
           port: '8000',
           host: 'localhost',
           base_path: "",
-          server_root: "/"
+          server_root: "/",
+          limit: 5
       };
 
       var options = this.data.options;
@@ -102,7 +103,7 @@ module.exports = function(grunt) {
       });
     });
 
-    async.parallel(uploadTasks, function(err, results) {
+    async.parallelLimit(uploadTasks, configuration.limit, function(err, results) {
         if (err) { return grunt.log.error(err); }
 
         grunt.verbose.writeln(results);

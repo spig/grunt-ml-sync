@@ -83,6 +83,12 @@ Default value: none
 
 The path of the files to watch or file globbing patterns.
 
+#### limit
+Type: `Int`
+Default value: 5
+
+Limits how many document insert commands will be run in parallel so as to avoid overloading the database REST connection.
+
 ### Usage Examples
 
 #### Example monitoring an entire folder
