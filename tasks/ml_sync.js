@@ -14,7 +14,7 @@ var async = require('async');
 
 // TODO - test this function with duplicate '//' and such
 var cleanPath = function(filePath, serverRoot, localPath) {
-    return serverRoot + path.relative(localPath, filePath);
+    return encodeURI(serverRoot + path.relative(localPath, filePath));
 };
 
 var isArray = function(obj) {
